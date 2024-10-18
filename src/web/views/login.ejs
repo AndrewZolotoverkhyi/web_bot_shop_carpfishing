@@ -1,0 +1,59 @@
+<%-include('head.ejs'); %>
+
+    <body>
+        <div id="id01" class="modal">
+
+            <form id="login_form" class="modal-content animate">
+                <div class="container">
+                    <label for="name"><b>Ім'я</b></label>
+                    <input type="text" placeholder="Enter Username" name="name" id="name" required>
+
+                    <label for="password"><b>Пароль</b></label>
+                    <input type="password" placeholder="Enter Password" name="password" id="password" required>
+
+                    <button type="submit">Зареєструватись</button>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                </div>
+            </form>
+        </div>
+
+        <script>
+            let form = document.getElementById('login_form');
+            form.onsubmit = async (event) => {
+                event.preventDefault();
+                var formData = new FormData(form);
+
+                const name = formData.get("name");
+                const pass = formData.get("password");
+
+                const result = await fetch("http://localhost:5000/auth/register", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': "application/json"
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        password: pass
+                    })
+                })
+
+                if (await result.status == 400) {
+                    alert("Помилка")
+                    return;
+                }
+
+                const v = await result.json()
+                console.log(v)
+                console.log(v.token)
+
+                localStorage.setItem("token", v.token)
+
+                window.open("http://localhost:5000/products/view", "_self")
+            }
+        </script>
+
+    </body>
+
+    </html>

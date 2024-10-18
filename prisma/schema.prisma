@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./db/bot.sqlite"
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  password String
+  token    String
+}
+
+model User {
+  id              Int               @id @default(autoincrement())
+  chatid          Int               @unique
+  telegramId      Int               @unique
+  card            CartProduct[]
+  favoriteProduct FavoriteProduct[]
+  Order           Order[]
+}
+
+model Session {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+model CartProduct {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  count     Int
+  userId    Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model FavoriteProduct {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Product Product[]
+}
+
+model Product {
+  id              Int               @id @default(autoincrement())
+  name            String
+  price           Float
+  description     String
+  longDescription String
+  productImages   ProductImages[]
+  category        Category?         @relation(fields: [categoryId], references: [id])
+  categoryId      Int?
+  card            CartProduct[]
+  favorites       FavoriteProduct[]
+  OrderProducts   OrderProduct[]
+}
+
+model ProductImages {
+  id        Int      @id @default(autoincrement())
+  product   Product? @relation(fields: [productId], references: [id])
+  productId Int?
+  imageUrl  String
+}
+
+model Order {
+  id            Int            @id @default(autoincrement())
+  user          User           @relation(fields: [userId], references: [id])
+  userId        Int
+  telegramLogin String
+  number        String
+  address       String
+  state         Int
+  OrderProduct  OrderProduct[]
+}
+
+model OrderProduct {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  count     Int
+}
